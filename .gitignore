@@ -1,0 +1,16 @@
+.DS_Store
+/#*#
+*~
+/bin
+/.project
+/.classpath
+/.settings
+/classes
+/test-classes
+/test-result
+/RONDHUIT-W2VL-*.jar
+/api
+/javadoc-release
+/*.temp
+/text8*
+/vectors.txt

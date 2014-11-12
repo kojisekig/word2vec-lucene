@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (c) 2014 RONDHUIT Co.,Ltd.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+-->
+<project name="rondhuit.w2vj" default="w2vj-jar" basedir=".">
+
+    <dirname property="mybase.dir" file="${ant.file.rondhuit.w2vj}"/>
+    <property file="${mybase.dir}/version.properties"/>
+    <property file="${mybase.dir}/build.properties"/>
+
+    <path id="common.path.lib">
+        <fileset dir="${lib.dir}" includes="*.jar"/>
+    </path>
+
+    <target name="w2vj-jar" depends="w2vj-compile" description="make w2vj jar file">
+        <jar destfile="${product.jar}" basedir="${cls.dir}"/>
+    </target>
+
+    <target name="w2vj-compile" description="compile w2vj">
+        <mkdir dir="${cls.dir}"/>
+        <javac srcdir="${src.dir}/java"
+               destdir="${cls.dir}"
+               encoding="${compile.encoding}"
+               deprecation="${compile.deprecation}"
+               source="${compile.source}"
+               target="${compile.target}"
+               debug="${compile.debug}">
+            <classpath refid="common.path.lib"/>
+        </javac>
+    </target>
+
+    <target name="w2vj-javadoc" description="build w2vj javadoc">
+        <property name="javadoc.link.java" value="http://docs.oracle.com/javase/jp/6/api/"/>
+        <delete dir="${javadoc.dir}"/>
+        <mkdir dir="${javadoc.dir}"/>
+        <copy todir="${javadoc.dir}/prettify">
+          <fileset dir="${prettify.dir}"/>
+        </copy>
+        <javadoc
+          overview="src/java/overview.html"
+          sourcepath="${src.dir}/java"
+          packagenames="com.rondhuit.w2v.*"
+          failonerror="true"
+          destdir="${javadoc.dir}"
+          access="protected"
+          encoding="${compile.encoding}"
+          docencoding="${compile.encoding}"
+          charset="${compile.encoding}"
+          additionalparam="-J-Dfile.encoding=${compile.encoding}"
+          author="true"
+          version="true"
+          use="true"
+          locale="ja_JP"
+          source="${compile.source}"
+          windowtitle="${PRODUCT_NAME} ${PRODUCT_VERSION} API"
+          doctitle="${PRODUCT_NAME} ${PRODUCT_VERSION} API"
+          stylesheetfile="${javadoc.dir}/prettify/stylesheet+prettify.css"
+          bottom="Copyright &amp;copy; 2014 &lt;a href=&quot;http://www.rondhuit.com/&quot;&gt;RONDHUIT Co.,Ltd.&lt;/a&gt; All Rights Reserved.">
+            <classpath refid="common.path.lib"/>
+            <link href="${javadoc.link.java}"/>
+            <tag name="rh.warning" description="WARNING"/>
+            <header><![CDATA[
+<a href="http://www.rondhuit.com/">word2vec-java Copyright (c) 2014 RONDHUIT Co.,Ltd.</a>
+<script src="{@docRoot}/prettify/prettify.js" type="text/javascript"></script>
+<script src="{@docRoot}/d3.v2.min.js" type="text/javascript"></script>
+<script language="JavaScript">window.onload=function(){windowTitle();prettyPrint();}</script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ["\\(","\\)"]] } });
+</script>
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML">
+</script>
+<meta http-equiv="X-UA-Compatible" CONTENT="IE=EmulateIE7" />
+            ]]></header>
+        </javadoc>
+    </target>
+
+    <!-- ================================================================== -->
+    <!-- = TEST W2VJ                                                    = -->
+    <!-- ================================================================== -->
+    <target name="test" depends="w2vj-compile,test-compile" description="test w2vj.">
+        <mkdir dir="${test.result.dir}"/>
+        <junit printsummary="on"
+               haltonfailure="no"
+               errorProperty="tests.failed"
+               failureProperty="tests.failed"
+               dir="${src.dir}/test">
+            <jvmarg line="-Xmx512m -Dfile.encoding=UTF-8"/>
+            <classpath refid="common.path.lib"/>
+            <classpath path="${cls.dir}"/>
+            <classpath path="${test.cls.dir}"/>
+            <classpath path="${src.dir}/test"/>
+            <formatter type="brief" usefile="false" if="junit.details"/>
+            <formatter type="plain"/>
+            <batchtest fork="yes" todir="${test.result.dir}" unless="testcase">
+                <fileset dir="${src.dir}/test" includes="**/*Test.java"/>
+            </batchtest>
+            <batchtest fork="yes" todir="${test.result.dir}" if="testcase">
+                <fileset dir="${src.dir}/test" includes="**/${testcase}.java"/>
+            </batchtest>
+        </junit>
+        <fail if="tests.failed">***** Tests failed! *****</fail>
+    </target>
+
+    <target name="test-compile" description="compile w2vj tests">
+        <mkdir dir="${test.cls.dir}"/>
+        <javac srcdir="${src.dir}/test"
+               destdir="${test.cls.dir}"
+               encoding="${compile.encoding}"
+               deprecation="${compile.deprecation}"
+               source="${compile.source}"
+               target="${compile.target}"
+               debug="${compile.debug}">
+            <classpath refid="common.path.lib"/>
+            <classpath path="${cls.dir}"/>
+        </javac>
+    </target>
+
+    <!-- ================================================================== -->
+    <!-- = PREPARE TEXT8                                                  = -->
+    <!-- ================================================================== -->
+    <target name="t8-splitter" unless="t8txt.exists" depends="t8txt-check, w2vj-compile"
+        description="split text8 into multi-lines file so that Word2vec can process the file correctly">
+        <java classname="com.rondhuit.w2v.Text8Splitter" fork="true">
+            <jvmarg line="-Dfile.encoding=UTF-8"/>
+            <arg line="text8 text8.txt"/>
+            <classpath refid="common.path.lib"/>
+            <classpath path="${cls.dir}"/>
+        </java>
+    </target>
+    
+    <target name="t8txt-check" depends="t8-unzip">
+        <available file="text8.txt" property="t8txt.exists"/>
+    </target>
+
+    <target name="t8-unzip" unless="t8.exists" depends="t8-check">
+        <unzip src="text8.zip" dest="."/>
+    </target>
+    
+    <target name="t8-check" depends="t8-download">
+        <available file="text8" property="t8.exists"/>
+    </target>
+
+    <target name="t8-download" unless="t8zip.exists" depends="t8zip-check"
+        description="download text8.zip file if it doesn't exist">
+        <get src="http://mattmahoney.net/dc/text8.zip" dest="text8.zip"/>
+    </target>
+    
+    <target name="t8zip-check">
+        <available file="text8.zip" property="t8zip.exists"/>
+    </target>
+
+    <target name="t8-delete" description="delete the downloaded text8.zip and its derivations">
+        <delete file="text8.zip"/>
+        <delete file="text8"/>
+        <delete file="text8.txt"/>
+    </target>
+    
+    <!-- ================================================================== -->
+    <!-- = PACKAGE                                                        = -->
+    <!-- ================================================================== -->
+    <target name="package" depends="w2vj-jar, w2vj-javadoc" description="make a package for delivery">
+        <mkdir dir="${dist.dir}"/>
+        <tar destfile="${dist.dir}/${product.tgz}" compression="gzip" longfile="gnu">
+            <tarfileset dir="." prefix="${productfull}" includes="CHANGES.txt"/>
+            <tarfileset dir="." prefix="${productfull}" includes="${product.jar}"/>
+            <tarfileset dir="." prefix="${productfull}" includes="api/**"/>
+            <tarfileset dir="${lib.dir}" prefix="${productfull}/lib" includes="**/*.jar, **/*.txt"/>
+            <tarfileset dir="${tools.dir}" prefix="${productfull}/tools" includes="**/*.js, **/*.css"/>
+            <tarfileset dir="projects" prefix="${productfull}/projects" includes="**/*.sample, **/*.html.template, **/*.sh, **/*.xml, **/*.txt" followsymlinks="false"/>
+        </tar>
+        <tar destfile="${dist.dir}/${productjavadoc.tgz}" compression="gzip" longfile="gnu">
+            <tarfileset dir="." prefix="${PRODUCT_VERSION}" includes="api/**"/>
+        </tar>
+    </target>
+
+    <!-- ================================================================== -->
+    <!-- = CLEANING                                                       = -->
+    <!-- ================================================================== -->
+    <target name="clean" description="clean all, except downloaded Solr">
+        <delete dir="${cls.dir}"/>
+        <delete dir="${test.cls.dir}"/>
+        <delete dir="${javadoc.dir}"/>
+        <delete dir="${test.result.dir}"/>
+        <delete dir="${dist.dir}"/>
+        <delete>
+            <fileset dir="." includes="**/*~" defaultexcludes="no"/>
+            <fileset dir="." includes="*.jar"/>
+        </delete>
+    </target>
+
+    <target name="clean-eclipse" description="delete Eclipse files, .project, .classpath and bin/">
+        <delete dir="bin"/>
+        <delete>
+            <fileset dir="." includes=".project,.classpath"/>
+        </delete>
+    </target>
+
+</project>
