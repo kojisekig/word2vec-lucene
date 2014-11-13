@@ -15,9 +15,9 @@
    limitations under the License.
 
 -->
-<project name="rondhuit.w2vj" default="w2vj-jar" basedir=".">
+<project name="rondhuit.w2vl" default="w2vl-jar" basedir=".">
 
-    <dirname property="mybase.dir" file="${ant.file.rondhuit.w2vj}"/>
+    <dirname property="mybase.dir" file="${ant.file.rondhuit.w2vl}"/>
     <property file="${mybase.dir}/version.properties"/>
     <property file="${mybase.dir}/build.properties"/>
 
@@ -25,11 +25,11 @@
         <fileset dir="${lib.dir}" includes="*.jar"/>
     </path>
 
-    <target name="w2vj-jar" depends="w2vj-compile" description="make w2vj jar file">
+    <target name="w2vl-jar" depends="w2vl-compile" description="make w2vl jar file">
         <jar destfile="${product.jar}" basedir="${cls.dir}"/>
     </target>
 
-    <target name="w2vj-compile" description="compile w2vj">
+    <target name="w2vl-compile" description="compile w2vl">
         <mkdir dir="${cls.dir}"/>
         <javac srcdir="${src.dir}/java"
                destdir="${cls.dir}"
@@ -42,7 +42,7 @@
         </javac>
     </target>
 
-    <target name="w2vj-javadoc" description="build w2vj javadoc">
+    <target name="w2vl-javadoc" description="build w2vl javadoc">
         <property name="javadoc.link.java" value="http://docs.oracle.com/javase/jp/6/api/"/>
         <delete dir="${javadoc.dir}"/>
         <mkdir dir="${javadoc.dir}"/>
@@ -89,9 +89,9 @@
     </target>
 
     <!-- ================================================================== -->
-    <!-- = TEST W2VJ                                                    = -->
+    <!-- = TEST W2VL                                                    = -->
     <!-- ================================================================== -->
-    <target name="test" depends="w2vj-compile,test-compile" description="test w2vj.">
+    <target name="test" depends="w2vl-compile,test-compile" description="test w2vl.">
         <mkdir dir="${test.result.dir}"/>
         <junit printsummary="on"
                haltonfailure="no"
@@ -115,7 +115,7 @@
         <fail if="tests.failed">***** Tests failed! *****</fail>
     </target>
 
-    <target name="test-compile" description="compile w2vj tests">
+    <target name="test-compile" description="compile w2vl tests">
         <mkdir dir="${test.cls.dir}"/>
         <javac srcdir="${src.dir}/test"
                destdir="${test.cls.dir}"
@@ -132,7 +132,7 @@
     <!-- ================================================================== -->
     <!-- = PREPARE TEXT8                                                  = -->
     <!-- ================================================================== -->
-    <target name="t8-splitter" unless="t8txt.exists" depends="t8txt-check, w2vj-compile"
+    <target name="t8-splitter" unless="t8txt.exists" depends="t8txt-check, w2vl-compile"
         description="split text8 into multi-lines file so that Word2vec can process the file correctly">
         <java classname="com.rondhuit.w2v.Text8Splitter" fork="true">
             <jvmarg line="-Dfile.encoding=UTF-8"/>
@@ -172,7 +172,7 @@
     <!-- ================================================================== -->
     <!-- = PACKAGE                                                        = -->
     <!-- ================================================================== -->
-    <target name="package" depends="w2vj-jar, w2vj-javadoc" description="make a package for delivery">
+    <target name="package" depends="w2vl-jar, w2vl-javadoc" description="make a package for delivery">
         <mkdir dir="${dist.dir}"/>
         <tar destfile="${dist.dir}/${product.tgz}" compression="gzip" longfile="gnu">
             <tarfileset dir="." prefix="${productfull}" includes="CHANGES.txt"/>
