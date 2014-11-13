@@ -132,9 +132,30 @@
     <!-- ================================================================== -->
     <!-- = PREPARE TEXT8                                                  = -->
     <!-- ================================================================== -->
+    <target name="t8-solr" unless="t8xml.exists" depends="t8xml-check"
+        description="provide text8.xml so that the text8 can be indexed easily">
+      <concat destfile="text8.xml">
+        <string>
+&lt;add&gt;
+&lt;doc&gt;
+&lt;field name=&quot;body&quot;&gt;
+        </string>
+        <fileset dir="." includes="text8.txt"/>
+        <string>
+&lt;/field&gt;
+&lt;/doc&gt;
+&lt;/add&gt;
+        </string>
+      </concat>
+    </target>
+    
+    <target name="t8xml-check" depends="t8-splitter">
+        <available file="text8.xml" property="t8xml.exists"/>
+    </target>
+
     <target name="t8-splitter" unless="t8txt.exists" depends="t8txt-check, w2vl-compile"
         description="split text8 into multi-lines file so that Word2vec can process the file correctly">
-        <java classname="com.rondhuit.w2v.Text8Splitter" fork="true">
+        <java classname="com.rondhuit.w2v.lucene.Text8Splitter" fork="true">
             <jvmarg line="-Dfile.encoding=UTF-8"/>
             <arg line="text8 text8.txt"/>
             <classpath refid="common.path.lib"/>

@@ -14,3 +14,5 @@
 /*.temp
 /text8*
 /vectors.txt
+solrhome/*/conf/_rest_managed.json
+solrhome/*/data
