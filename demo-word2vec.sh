@@ -15,10 +15,25 @@
 #   limitations under the License.
 #
 
+if [ -z $1 ]; then
+  echo "Usage: ./demo-word2vec.sh <solrcore> <analyzer (default is org.apache.lucene.analysis.core.WhitespaceAnalyzer)>"
+  echo "  ex) ./demo-word2vec.sh ldcc org.apache.lucene.analysis.ja.JapaneseAnalyzer"
+  exit 1
+else
+  SOLRCORE=$1
+fi
+
+if [ -z $2 ]; then
+  ANALYZER=org.apache.lucene.analysis.core.WhitespaceAnalyzer
+else
+  ANALYZER=$2
+fi
+
 LUCENE_JAR=$(ls lib/lucene-core-*.jar)
 LUCENE_JAR=${LUCENE_JAR}:$(ls lib/lucene-analyzers-common-*.jar)
+LUCENE_JAR=${LUCENE_JAR}:$(ls lib/lucene-analyzers-kuromoji-*.jar)
 RHCOM_JAR=$(ls lib/RONDHUIT-COMMONS-*.jar)
 SLF4J_JAR=$(ls lib/slf4j-api-*.jar)
 SLF4J_JAR=${SLF4J_JAR}:$(ls lib/slf4j-jdk14-*.jar)
 
-java -cp ${LUCENE_JAR}:${RHCOM_JAR}:${SLF4J_JAR}:classes com.rondhuit.w2v.lucene.demo.CreateVectors -index solrhome/collection1/data/index -output vectors.txt -field body -cbow 1 -size 200 -window 8 -negative 25 -sample 0.0001 -threads 4 -iter 15 -min-count 5
+java -cp ${LUCENE_JAR}:${RHCOM_JAR}:${SLF4J_JAR}:classes com.rondhuit.w2v.lucene.demo.CreateVectors -index solrhome/${SOLRCORE}/data/index -output vectors.txt -field body -analyzer ${ANALYZER} -cbow 1 -size 200 -window 8 -negative 25 -sample 0.0001 -threads 4 -iter 15 -min-count 5
