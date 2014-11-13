@@ -223,6 +223,11 @@
         </delete>
     </target>
 
+    <target name="clean-index" description="delete all index directories under solrhome directory">
+        <delete dir="solrhome/collection1/data/index"/>
+        <delete dir="solrhome/ldcc/data/index"/>
+    </target>
+
     <target name="clean-eclipse" description="delete Eclipse files, .project, .classpath and bin/">
         <delete dir="bin"/>
         <delete>
