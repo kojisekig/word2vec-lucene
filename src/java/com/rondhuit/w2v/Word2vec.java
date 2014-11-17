@@ -15,9 +15,8 @@
  *
  */
 
-package com.rondhuit.w2v.lucene;
+package com.rondhuit.w2v;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -32,26 +31,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.MultiFields;
-import org.apache.lucene.index.Terms;
-import org.apache.lucene.index.TermsEnum;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.TermRangeQuery;
-import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.BytesRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.rondhuit.commons.IOUtils;
+import com.rondhuit.w2v.lucene.Config;
+import com.rondhuit.w2v.lucene.LuceneIndexCorpus;
 
 public class Word2vec {
 
@@ -71,9 +56,6 @@ public class Word2vec {
   Map<String, Integer> vocabIndexMap = new HashMap<String, Integer>();
   static double[] syn0, syn1, syn1neg;
   int[] table;
-  IndexReader reader;
-  TopDocs topDocs;
-  final Analyzer analyzer;
   
   private final Config config;
   
@@ -91,24 +73,15 @@ public class Word2vec {
   public Word2vec(Config config){
     this.config = config;
     vocab = new VocabWord[vocabMaxSize];
-    analyzer = loadAnalyzer(config.getAnalyzer());
   }
   
   public Config getConfig(){
     return config;
   }
   
-  static Analyzer loadAnalyzer(String fqcn){
-    try {
-      return (Analyzer)Class.forName(fqcn).newInstance();
-    }
-    catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
-  
   static class TrainModelThread extends Thread {
     final Word2vec vec;
+    final Corpus corpus;
     final Config config;
     float alpha;
     final float startingAlpha;
@@ -116,15 +89,11 @@ public class Word2vec {
     final long timeStart;
     final int[] table;
     final VocabWord[] vocab;
-    final String field;
-    final Analyzer analyzer;
-    final IndexReader reader;
-    final TopDocs topDocs;
-    int tdPos;
     static int wordCountActual = 0;
     
-    public TrainModelThread(Word2vec vec, Config config, int id){
+    public TrainModelThread(Word2vec vec, Corpus corpus, Config config, int id){
       this.vec = vec;
+      this.corpus = corpus;
       this.config = config;
       this.alpha = config.getAlpha();
       this.startingAlpha = alpha;
@@ -134,10 +103,6 @@ public class Word2vec {
       this.timeStart = vec.timeStart;
       this.vocabSize = vec.vocabSize;
       this.vocab = vec.vocab;
-      this.field = config.getField();
-      this.analyzer = vec.analyzer;
-      this.reader = vec.reader;
-      this.topDocs = vec.topDocs;
     }
     
     public void run(){
@@ -162,7 +127,7 @@ public class Word2vec {
         double[] neu1 = new double[layer1Size];
         double[] neu1e = new double[layer1Size];
 
-        tdPos = topDocs.totalHits / numThreads * id;
+        corpus.rewind(numThreads, id);
         while(true){
           if (word_count - last_word_count > 10000) {
             wordCountActual += word_count - last_word_count;
@@ -201,7 +166,7 @@ public class Word2vec {
             word_count = 0;
             last_word_count = 0;
             sentence_length = 0;
-            tdPos = topDocs.totalHits / numThreads * id;
+            corpus.rewind(numThreads, id);
             continue;
           }
           word = sen[sentence_position];
@@ -337,54 +302,9 @@ public class Word2vec {
       }
     }
 
-    /**
-     * Reads a word and returns its index in the vocabulary
-     * @param br
-     * @return
-     * @throws IOException
-     */
-    int readWordIndex() throws IOException {
-      String word = readWord();
+    public int readWordIndex() throws IOException {
+      String word = corpus.nextWord();
       return word == null ? -2 : vec.searchVocab(word);
-    }
-    
-    TokenStream tokenStream = null;
-    CharTermAttribute termAtt = null;
-    String[] values = new String[]{};
-    int valPos = 0;
-
-    /**
-     * Reads a single word from index
-     * @return null if end of index or end of document
-     * @throws IOException
-     */
-    String readWord() throws IOException {
-      
-      while(true){
-        // check the tokenStream first
-        if(tokenStream != null && tokenStream.incrementToken()){
-          return new String(termAtt.buffer(), 0, termAtt.length());
-        }
-
-        if(tokenStream != null)
-          tokenStream.close();
-        if(valPos < values.length){
-          tokenStream = analyzer.tokenStream(field, values[valPos++]);
-          termAtt = tokenStream.getAttribute(CharTermAttribute.class);
-          tokenStream.reset();
-        }
-        else{
-          if(tdPos >= topDocs.totalHits){
-            tokenStream = null;
-            return null;   // end of index
-          }
-          Document doc = reader.document(topDocs.scoreDocs[tdPos++].doc);
-          values = doc.getValues(field);   // This method returns an empty array when there are no matching fields.
-                                           // It never returns null.
-          valPos = 0;
-          tokenStream = null;
-        }
-      }
     }
   }
   
@@ -394,10 +314,12 @@ public class Word2vec {
     System.err.printf("Starting training using Lucene index %s\n", config.getIndexDir());
 
     final int layer1Size = config.getLayer1Size();
-    Directory dir = FSDirectory.open(new File(config.getIndexDir()));
-    reader = DirectoryReader.open(dir);
+    Corpus corpus = new LuceneIndexCorpus(config);
 
-    learnVocabFromIndex();
+    corpus.learnVocab();
+    vocabSize = corpus.getVocabSize();
+    vocab = corpus.getVocab();
+    vocabIndexMap = corpus.getVocabIndexMap();
     
     sortVocab();
     logger.info("Vocab size: {}\n", vocabSize);
@@ -413,7 +335,7 @@ public class Word2vec {
 
     threadCount = config.getNumThreads();
     for(int i = 0; i < config.getNumThreads(); i++){
-      new TrainModelThread(this, config, i).start();
+      new TrainModelThread(this, new LuceneIndexCorpus(corpus), config, i).start();
     }
     synchronized (this) {
       while(threadCount > 0){
@@ -504,34 +426,10 @@ public class Word2vec {
       }
     }
     finally{
-      reader.close();
+      corpus.close();
       IOUtils.closeQuietly(pw);
       IOUtils.closeQuietly(w);
       IOUtils.closeQuietly(os);
-    }
-  }
-  
-  void learnVocabFromIndex() throws IOException {
-    vocabIndexMap.clear();
-    vocabSize = 0;
-
-    final String field = config.getField();
-    final Terms terms = MultiFields.getTerms(reader, field);
-    final BytesRef maxTerm = terms.getMax();
-    final BytesRef minTerm = terms.getMin();
-    Query q = new TermRangeQuery(field, minTerm, maxTerm, true, true);
-    IndexSearcher searcher = new IndexSearcher(reader);
-    topDocs = searcher.search(q, Integer.MAX_VALUE);
-
-    TermsEnum termsEnum = null;
-    termsEnum = terms.iterator(termsEnum);
-
-    termsEnum.seekCeil(new BytesRef());
-    BytesRef term = termsEnum.term();
-    while(term != null){
-      int p = addWordToVocab(term.utf8ToString());
-      vocab[p].cn = (int)termsEnum.totalTermFreq();
-      term = termsEnum.next();
     }
   }
 
@@ -543,46 +441,6 @@ public class Word2vec {
   int searchVocab(String word){
     Integer pos = vocabIndexMap.get(word);
     return pos == null ? -1 : pos.intValue();
-  }
-
-  /**
-   * Adds a word to the vocabulary
-   * @param word
-   * @return
-   */
-  int addWordToVocab(String word){
-    vocab[vocabSize] = new VocabWord(word);
-    vocabSize++;
-
-    // Reallocate memory if needed
-    if(vocabSize + 2 >= vocabMaxSize){
-      vocabMaxSize += 1000;
-      VocabWord[] temp = new VocabWord[vocabMaxSize];
-      System.arraycopy(vocab, 0, temp, 0, vocabSize);
-      vocab = temp;
-    }
-    vocabIndexMap.put(word, vocabSize - 1);
-    return vocabSize - 1;
-  }
-
-  /**
-   * Reduces the vocabulary by removing infrequent tokens
-   */
-  void reduceVocab(){
-    int j = 0;
-    for(int i = 0; i < vocabSize; i++){
-      if(vocab[i].cn > minReduce){
-        vocab[j].cn = vocab[i].cn;
-        vocab[j].word = vocab[i].word;
-        j++;
-      }
-    }
-    vocabSize = j;
-    vocabIndexMap.clear();
-    for(int i = 0; i < vocabSize; i++){
-      vocabIndexMap.put(vocab[i].word, i);
-    }
-    minReduce++;
   }
 
   /**

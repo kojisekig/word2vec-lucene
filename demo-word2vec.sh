@@ -36,4 +36,4 @@ RHCOM_JAR=$(ls lib/RONDHUIT-COMMONS-*.jar)
 SLF4J_JAR=$(ls lib/slf4j-api-*.jar)
 SLF4J_JAR=${SLF4J_JAR}:$(ls lib/slf4j-jdk14-*.jar)
 
-java -cp ${LUCENE_JAR}:${RHCOM_JAR}:${SLF4J_JAR}:classes com.rondhuit.w2v.lucene.demo.CreateVectors -index solrhome/${SOLRCORE}/data/index -output vectors.txt -field body -analyzer ${ANALYZER} -cbow 1 -size 200 -window 8 -negative 25 -sample 0.0001 -threads 4 -iter 15 -min-count 5
+java -cp ${LUCENE_JAR}:${RHCOM_JAR}:${SLF4J_JAR}:classes com.rondhuit.w2v.demo.LuceneCreateVectors -index solrhome/${SOLRCORE}/data/index -output vectors.txt -field body -analyzer ${ANALYZER} -cbow 1 -size 200 -window 8 -negative 25 -sample 0.0001 -threads 4 -iter 15 -min-count 5

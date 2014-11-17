@@ -15,7 +15,7 @@
  *
  */
 
-package com.rondhuit.w2v.lucene;
+package com.rondhuit.w2v;
 
 import java.io.FileReader;
 import java.io.PrintStream;

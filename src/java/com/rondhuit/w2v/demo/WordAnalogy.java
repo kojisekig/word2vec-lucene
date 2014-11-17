@@ -15,50 +15,56 @@
  *
  */
 
-package com.rondhuit.w2v.lucene.demo;
+package com.rondhuit.w2v.demo;
 
 import java.io.IOException;
 
-import com.rondhuit.w2v.lucene.AbstractVectorsReader;
+import com.rondhuit.w2v.AbstractVectorsReader;
 
-public class Distance extends AbstractVectorsReader {
-  
-  public Distance(String file) {
+public class WordAnalogy extends AbstractVectorsReader {
+
+  protected WordAnalogy(String file) {
     super(file);
   }
-
+  
   static void usage(){
     System.err.printf("Usage: java %s <FILE>\nwhere FILE contains word projections in the text format\n",
-        Distance.class.getName());
+        WordAnalogy.class.getName());
     System.exit(0);
   }
 
   public static void main(String[] args) throws IOException {
     if(args.length < 1) usage();
-    new Distance(args[0]).execute();
+    new WordAnalogy(args[0]).execute();
   }
   
   protected Result getTargetVector(){
     String[] input = null;
-    while((input = nextWords(1, "Enter a word")) != null) {
+    while((input = nextWords(3, "Enter 3 words")) != null){
       // linear search the input word in vocabulary
-      float[] vec = null;
-      int bi = -1;
-      double len = 0;
-      for(int i = 0; i < words; i++){
-        if(input[0].equals(vocab[i])){
-          bi = i;
-          System.out.printf("\nWord: %s  Position in vocabulary: %d\n", input[0], bi);
-          vec = new float[size];
-          for(int j = 0; j < size; j++){
-            vec[j] = matrix[bi][j];
-            len += vec[j] * vec[j];
+      int[] bi = new int[input.length];
+      int found = 0;
+      for(int k = 0; k < input.length; k++){
+        for(int i = 0; i < words; i++){
+          if(input[k].equals(vocab[i])){
+            bi[k] = i;
+            System.out.printf("\nWord: %s  Position in vocabulary: %d\n", input[k], bi[k]);
+            found++;
           }
         }
+        if(found == k){
+          System.out.printf("%s : Out of dictionary word!\n", input[k]);
+        }
       }
-      if(vec == null){
-        System.out.printf("%s : Out of dictionary word!\n", input[0]);
+      if(found < input.length){
         continue;
+      }
+
+      float[] vec = new float[size];
+      double len = 0;
+      for(int j = 0; j < size; j++){
+        vec[j] = matrix[bi[1]][j] - matrix[bi[0]][j] + matrix[bi[2]][j];
+        len += vec[j] * vec[j];
       }
       
       len = Math.sqrt(len);
@@ -66,7 +72,7 @@ public class Distance extends AbstractVectorsReader {
         vec[i] /= len;
       }
       
-      return new Result(vec, new int[]{bi});
+      return new Result(vec, bi);
     }
     
     return null;

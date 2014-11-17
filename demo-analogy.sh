@@ -19,4 +19,4 @@ RHCOM_JAR=$(ls lib/RONDHUIT-COMMONS-*.jar)
 SLF4J_JAR=$(ls lib/slf4j-api-*.jar)
 SLF4J_JAR=${SLF4J_JAR}:$(ls lib/slf4j-jdk14-*.jar)
 
-java -cp ${RHCOM_JAR}:${SLF4J_JAR}:classes com.rondhuit.w2v.lucene.demo.WordAnalogy vectors.txt
+java -cp ${RHCOM_JAR}:${SLF4J_JAR}:classes com.rondhuit.w2v.demo.WordAnalogy vectors.txt

@@ -15,14 +15,14 @@
  *
  */
 
-package com.rondhuit.w2v.lucene.demo;
+package com.rondhuit.w2v.demo;
 
 import java.io.IOException;
 
+import com.rondhuit.w2v.Word2vec;
 import com.rondhuit.w2v.lucene.Config;
-import com.rondhuit.w2v.lucene.Word2vec;
 
-public class CreateVectors {
+public class LuceneCreateVectors {
   
   static void usage(){
     System.err.printf("WORD VECTOR estimation toolkit v 0.1c\n\n");

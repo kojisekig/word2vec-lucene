@@ -15,7 +15,7 @@
  *
  */
 
-package com.rondhuit.w2v.lucene;
+package com.rondhuit.w2v;
 
 public class VocabWord {
   
@@ -31,6 +31,10 @@ public class VocabWord {
     cn = 0;
     point = new int[MAX_CODE_LENGTH];
     code = new char[MAX_CODE_LENGTH];
+  }
+  
+  public void setCn(int cn){
+    this.cn = cn;
   }
   
   @Override
