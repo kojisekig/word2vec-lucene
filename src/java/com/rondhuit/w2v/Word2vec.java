@@ -458,19 +458,16 @@ public class Word2vec {
    * Sorts the vocabulary by frequency using word counts
    */
   void sortVocab(){
-    // Sort the vocabulary and keep </s> at the first position
-    List<VocabWord> list = new ArrayList<VocabWord>(vocabSize - 1);
-    for(int i = 1; i < vocabSize; i++){
+    List<VocabWord> list = new ArrayList<VocabWord>(vocabSize);
+    for(int i = 0; i < vocabSize; i++){
       list.add(vocab[i]);
     }
     Collections.sort(list, new VocabWordComparator());
     
     // re-build vocabIndexMap
     vocabIndexMap.clear();
-    final int size = vocabSize - 1;
+    final int size = vocabSize;
     trainWords = 0;
-    // Hash will be re-computed, as after the sorting it is not actual
-    setVocabIndexMap(vocab[0], 0);
     for(int i = 0; i < size; i++){
       // Words occuring less than min_count times will be discarded from the vocab
       if(list.get(i).cn < config.getMinCount()){
@@ -478,18 +475,14 @@ public class Word2vec {
       }
       else{
         // Hash will be re-computed, as after the sorting it is not actual
-        setVocabIndexMap(list.get(i), i + 1);
+        setVocabIndexMap(list.get(i), i);
       }
     }
 
-    String tempWord = vocab[0].word;
-    int tempCn = vocab[0].cn;
     vocab = new VocabWord[vocabSize];
-    vocab[0] = new VocabWord(tempWord);
-    vocab[0].cn = tempCn;
-    for(int i = 0; i < vocabSize - 1; i++){
-      vocab[i + 1] = new VocabWord(list.get(i).word);
-      vocab[i + 1].cn = list.get(i).cn;
+    for(int i = 0; i < vocabSize; i++){
+      vocab[i] = new VocabWord(list.get(i).word);
+      vocab[i].cn = list.get(i).cn;
     }
   }
   
