@@ -101,9 +101,20 @@ public abstract class Corpus {
     eoc = false;
   }
 
+  /**
+   * 
+   * @return -3 if end of sentence, -2 if end of corpus, -1 if word not found or index value of the word
+   * @throws IOException
+   */
   public int readWordIndex() throws IOException {
     String word = nextWord();
-    return word == null ? -2 : searchVocab(word);
+    if(word == null){
+      if(eoc) return -2;    // end of corpus
+      else return -3;       // end of sentence
+    }
+    else{
+      return searchVocab(word);     // index value of the word
+    }
   }
 
   /**

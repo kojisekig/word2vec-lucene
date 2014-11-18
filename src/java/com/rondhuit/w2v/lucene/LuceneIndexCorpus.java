@@ -127,11 +127,14 @@ public class LuceneIndexCorpus extends Corpus {
         tokenStream = analyzer.tokenStream(field, values[valPos++]);
         termAtt = tokenStream.getAttribute(CharTermAttribute.class);
         tokenStream.reset();
+        eoc = false;
+        return null;
       }
       else{
         if(tdPos >= topDocs.totalHits){
           tokenStream = null;
-          return null;   // end of index
+          eoc = true;
+          return null;   // end of index == end of corpus
         }
         Document doc = reader.document(topDocs.scoreDocs[tdPos++].doc);
         values = doc.getValues(field);   // This method returns an empty array when there are no matching fields.

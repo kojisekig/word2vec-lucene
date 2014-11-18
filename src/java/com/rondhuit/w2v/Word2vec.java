@@ -134,7 +134,7 @@ public class Word2vec {
               if(word == -2) break;                // EOF
               if(word == -1) continue;
               word_count++;
-              if (word == 0) break;
+              if (word == -3) break;
               // The subsampling randomly discards frequent words while keeping the ranking same
               if (sample > 0) {
                 double ran = (Math.sqrt(vocab[word].cn / (sample * trainWords)) + 1) * (sample * trainWords) / vocab[word].cn;
