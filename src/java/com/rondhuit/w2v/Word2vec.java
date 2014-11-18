@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 
 import com.rondhuit.commons.IOUtils;
 import com.rondhuit.w2v.lucene.Config;
-import com.rondhuit.w2v.lucene.LuceneIndexCorpus;
 
 public class Word2vec {
 
@@ -293,11 +292,11 @@ public class Word2vec {
   
   int threadCount;
   
-  public void trainModel() throws IOException {
+  public void trainModel(CorpusFactory corpusFactory) throws IOException {
     System.err.printf("Starting training using Lucene index %s\n", config.getIndexDir());
 
     final int layer1Size = config.getLayer1Size();
-    Corpus corpus = new LuceneIndexCorpus(config);
+    Corpus corpus = corpusFactory.create(config);
 
     corpus.learnVocab();
     corpus.sortVocab();
@@ -316,7 +315,7 @@ public class Word2vec {
 
     threadCount = config.getNumThreads();
     for(int i = 0; i < config.getNumThreads(); i++){
-      new TrainModelThread(this, new LuceneIndexCorpus(corpus), config, i).start();
+      new TrainModelThread(this, corpusFactory.create(corpus), config, i).start();
     }
     synchronized (this) {
       while(threadCount > 0){

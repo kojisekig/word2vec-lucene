@@ -21,6 +21,7 @@ import java.io.IOException;
 
 import com.rondhuit.w2v.Word2vec;
 import com.rondhuit.w2v.lucene.Config;
+import com.rondhuit.w2v.lucene.LuceneIndexCorpusFactory;
 
 public class LuceneCreateVectors {
   
@@ -104,6 +105,6 @@ public class LuceneCreateVectors {
 
     
     Word2vec w2v = new Word2vec(config);
-    w2v.trainModel();
+    w2v.trainModel(new LuceneIndexCorpusFactory());
   }
 }
