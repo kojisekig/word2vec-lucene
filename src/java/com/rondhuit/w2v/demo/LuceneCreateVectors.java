@@ -20,7 +20,7 @@ package com.rondhuit.w2v.demo;
 import java.io.IOException;
 
 import com.rondhuit.w2v.Word2vec;
-import com.rondhuit.w2v.lucene.Config;
+import com.rondhuit.w2v.lucene.LuceneIndexConfig;
 import com.rondhuit.w2v.lucene.LuceneIndexCorpusFactory;
 
 public class LuceneCreateVectors {
@@ -83,7 +83,7 @@ public class LuceneCreateVectors {
   public static void main(String[] args) throws IOException {
     if(args.length <= 1) usage();
     
-    Config config = new Config();
+    LuceneIndexConfig config = new LuceneIndexConfig();
 
     int i;
     if((i = argPos("-size", args)) >= 0) config.setLayer1Size(Integer.parseInt(args[i + 1]));
@@ -105,6 +105,7 @@ public class LuceneCreateVectors {
 
     
     Word2vec w2v = new Word2vec(config);
+    System.err.printf("Starting training using Lucene index %s\n", config.getIndexDir());
     w2v.trainModel(new LuceneIndexCorpusFactory());
   }
 }

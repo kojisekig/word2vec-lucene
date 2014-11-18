@@ -30,11 +30,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.rondhuit.commons.IOUtils;
-import com.rondhuit.w2v.lucene.Config;
 
 public class Word2vec {
 
-  static final int VOCAB_MAX_SIZE      = 30000000;
   static final int EXP_TABLE_SIZE      = 1000;
   static final int MAX_EXP             = 6;
   static final int TABLE_SIZE          = 100000000;
@@ -293,8 +291,6 @@ public class Word2vec {
   int threadCount;
   
   public void trainModel(CorpusFactory corpusFactory) throws IOException {
-    System.err.printf("Starting training using Lucene index %s\n", config.getIndexDir());
-
     final int layer1Size = config.getLayer1Size();
     Corpus corpus = corpusFactory.create(config);
 

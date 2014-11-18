@@ -19,8 +19,6 @@ package com.rondhuit.w2v;
 
 import java.io.IOException;
 
-import com.rondhuit.w2v.lucene.Config;
-
 public abstract class CorpusFactory {
   
   public abstract Corpus create(Config config) throws IOException;

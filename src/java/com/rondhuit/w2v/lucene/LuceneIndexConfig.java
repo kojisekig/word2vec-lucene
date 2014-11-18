@@ -17,22 +17,38 @@
 
 package com.rondhuit.w2v.lucene;
 
-import java.io.IOException;
-
 import com.rondhuit.w2v.Config;
-import com.rondhuit.w2v.Corpus;
-import com.rondhuit.w2v.CorpusFactory;
 
-public class LuceneIndexCorpusFactory extends CorpusFactory {
+public class LuceneIndexConfig extends Config {
 
-  @Override
-  public Corpus create(Config config) throws IOException {
-    return new LuceneIndexCorpus(config);
+  static final String DEF_ANALYZER     = "org.apache.lucene.analysis.core.WhitespaceAnalyzer";
+  
+  private String indexDir, field, analyzer = DEF_ANALYZER;
+
+  public LuceneIndexConfig setIndexDir(String indexDir){
+    this.indexDir = indexDir;
+    return this;
+  }
+  
+  public String getIndexDir(){
+    return indexDir;
   }
 
-  @Override
-  public Corpus create(Corpus cloneSrc) throws IOException {
-    return new LuceneIndexCorpus(cloneSrc);
+  public LuceneIndexConfig setField(String field){
+    this.field = field;
+    return this;
+  }
+  
+  public String getField(){
+    return field;
   }
 
+  public LuceneIndexConfig setAnalyzer(String analyzer){
+    this.analyzer = analyzer;
+    return this;
+  }
+  
+  public String getAnalyzer(){
+    return analyzer;
+  }
 }

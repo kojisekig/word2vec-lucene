@@ -15,9 +15,9 @@
  *
  */
 
-package com.rondhuit.w2v.lucene;
+package com.rondhuit.w2v;
 
-public class Config {
+public abstract class Config {
 
   static final int DEF_ITER            = 5;
   static final int DEF_WINDOW          = 5;
@@ -26,22 +26,12 @@ public class Config {
   static final int DEF_LAYER1_SIZE     = 100;
   static final int DEF_NUM_THREADS     = 12;
   static final float DEF_SAMPLE        = 0.001f;
-  static final String DEF_ANALYZER     = "org.apache.lucene.analysis.core.WhitespaceAnalyzer";
-  
-  private String indexDir, outputFile, field, analyzer = DEF_ANALYZER;
-  private int iter = DEF_ITER, window = DEF_WINDOW, minCount = DEF_MIN_COUNT, negative = DEF_NEGATIVE,
-      layer1Size = DEF_LAYER1_SIZE, classes, numThreads = DEF_NUM_THREADS;
-  private boolean hs, cbow;
-  private float sample = DEF_SAMPLE, alpha = 0.025f;
 
-  public Config setIndexDir(String indexDir){
-    this.indexDir = indexDir;
-    return this;
-  }
-  
-  public String getIndexDir(){
-    return indexDir;
-  }
+  protected String outputFile;
+  protected int iter = DEF_ITER, window = DEF_WINDOW, minCount = DEF_MIN_COUNT, negative = DEF_NEGATIVE,
+      layer1Size = DEF_LAYER1_SIZE, classes, numThreads = DEF_NUM_THREADS;
+  protected boolean hs, cbow;
+  protected float sample = DEF_SAMPLE, alpha = 0.025f;
 
   public Config setOutputFile(String outputFile){
     this.outputFile = outputFile;
@@ -50,24 +40,6 @@ public class Config {
   
   public String getOutputFile(){
     return outputFile;
-  }
-
-  public Config setField(String field){
-    this.field = field;
-    return this;
-  }
-  
-  public String getField(){
-    return field;
-  }
-
-  public Config setAnalyzer(String analyzer){
-    this.analyzer = analyzer;
-    return this;
-  }
-  
-  public String getAnalyzer(){
-    return analyzer;
   }
   
   public Config setIter(int iter){

@@ -37,6 +37,7 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.BytesRef;
 
+import com.rondhuit.w2v.Config;
 import com.rondhuit.w2v.Corpus;
 
 public class LuceneIndexCorpus extends Corpus {
@@ -50,9 +51,10 @@ public class LuceneIndexCorpus extends Corpus {
   public LuceneIndexCorpus(Config config) throws IOException {
     super(config);
 
-    field = config.getField();
-    analyzer = loadAnalyzer(config.getAnalyzer());
-    Directory dir = FSDirectory.open(new File(config.getIndexDir()));
+    LuceneIndexConfig liConfig = (LuceneIndexConfig)config;
+    field = liConfig.getField();
+    analyzer = loadAnalyzer(liConfig.getAnalyzer());
+    Directory dir = FSDirectory.open(new File(liConfig.getIndexDir()));
     reader = DirectoryReader.open(dir);
   }
 
@@ -74,14 +76,14 @@ public class LuceneIndexCorpus extends Corpus {
     reader = lic.reader;
     field = lic.field;
     topDocs = lic.topDocs;
-    analyzer = loadAnalyzer(config.getAnalyzer());
+    analyzer = loadAnalyzer(((LuceneIndexConfig)config).getAnalyzer());
   }
 
   @Override
   public void learnVocab() throws IOException {
     super.learnVocab();
 
-    final String field = config.getField();
+    final String field = ((LuceneIndexConfig)config).getField();
     final Terms terms = MultiFields.getTerms(reader, field);
     final BytesRef maxTerm = terms.getMax();
     final BytesRef minTerm = terms.getMin();
