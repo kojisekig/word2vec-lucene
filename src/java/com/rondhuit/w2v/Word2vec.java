@@ -24,12 +24,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,12 +43,6 @@ public class Word2vec {
   static final Charset ENCODING = Charset.forName("UTF-8");
 
   long timeStart;
-  int trainWords = 0;
-  int vocabSize;
-  int vocabMaxSize = 1000;
-  int minReduce = 1;
-  VocabWord[] vocab;
-  Map<String, Integer> vocabIndexMap = new HashMap<String, Integer>();
   static double[] syn0, syn1, syn1neg;
   int[] table;
   
@@ -72,7 +61,6 @@ public class Word2vec {
   
   public Word2vec(Config config){
     this.config = config;
-    vocab = new VocabWord[vocabMaxSize];
   }
   
   public Config getConfig(){
@@ -99,10 +87,10 @@ public class Word2vec {
       this.startingAlpha = alpha;
       this.id = id;
       this.table = vec.table;
-      this.trainWords = vec.trainWords;
+      this.trainWords = corpus.getTrainWords();
       this.timeStart = vec.timeStart;
-      this.vocabSize = vec.vocabSize;
-      this.vocab = vec.vocab;
+      this.vocabSize = corpus.getVocabSize();
+      this.vocab = corpus.getVocab();
     }
     
     public void run(){
@@ -304,7 +292,7 @@ public class Word2vec {
 
     public int readWordIndex() throws IOException {
       String word = corpus.nextWord();
-      return word == null ? -2 : vec.searchVocab(word);
+      return word == null ? -2 : corpus.searchVocab(word);
     }
   }
   
@@ -317,19 +305,17 @@ public class Word2vec {
     Corpus corpus = new LuceneIndexCorpus(config);
 
     corpus.learnVocab();
-    vocabSize = corpus.getVocabSize();
-    vocab = corpus.getVocab();
-    vocabIndexMap = corpus.getVocabIndexMap();
-    
-    sortVocab();
+    corpus.sortVocab();
+    final int vocabSize = corpus.getVocabSize();
+    final VocabWord[] vocab = corpus.getVocab();
     logger.info("Vocab size: {}\n", vocabSize);
-    logger.info("Words in train file: {}\n", trainWords);
+    logger.info("Words in train file: {}\n", corpus.getTrainWords());
 
     if(config.getOutputFile() == null) return;
 
-    initNet();
+    initNet(corpus);
     if(config.getNegative() > 0)
-      initUnigramTable();
+      initUnigramTable(corpus);
 
     timeStart = System.currentTimeMillis();
 
@@ -434,16 +420,6 @@ public class Word2vec {
   }
 
   /**
-   * Returns position of a word in the vocabulary; if the word is not found, returns -1
-   * @param word
-   * @return
-   */
-  int searchVocab(String word){
-    Integer pos = vocabIndexMap.get(word);
-    return pos == null ? -1 : pos.intValue();
-  }
-
-  /**
    * Used later for sorting by word counts
    *
    */
@@ -453,45 +429,10 @@ public class Word2vec {
       return o2.cn - o1.cn;
     }
   }
-
-  /**
-   * Sorts the vocabulary by frequency using word counts
-   */
-  void sortVocab(){
-    List<VocabWord> list = new ArrayList<VocabWord>(vocabSize);
-    for(int i = 0; i < vocabSize; i++){
-      list.add(vocab[i]);
-    }
-    Collections.sort(list, new VocabWordComparator());
-    
-    // re-build vocabIndexMap
-    vocabIndexMap.clear();
-    final int size = vocabSize;
-    trainWords = 0;
-    for(int i = 0; i < size; i++){
-      // Words occuring less than min_count times will be discarded from the vocab
-      if(list.get(i).cn < config.getMinCount()){
-        vocabSize--;
-      }
-      else{
-        // Hash will be re-computed, as after the sorting it is not actual
-        setVocabIndexMap(list.get(i), i);
-      }
-    }
-
-    vocab = new VocabWord[vocabSize];
-    for(int i = 0; i < vocabSize; i++){
-      vocab[i] = new VocabWord(list.get(i).word);
-      vocab[i].cn = list.get(i).cn;
-    }
-  }
   
-  void setVocabIndexMap(VocabWord src, int pos){
-    vocabIndexMap.put(src.word, pos);
-    trainWords += src.cn;
-  }
-  
-  void initUnigramTable(){
+  void initUnigramTable(Corpus corpus){
+    final int vocabSize = corpus.getVocabSize();
+    final VocabWord[] vocab = corpus.getVocab();
     long trainWordsPow = 0;
     double d1, power = 0.75;
     table = new int[TABLE_SIZE];
@@ -511,8 +452,9 @@ public class Word2vec {
     }
   }
   
-  void initNet(){
+  void initNet(Corpus corpus){
     final int layer1Size = config.getLayer1Size();
+    final int vocabSize = corpus.getVocabSize();
     
     syn0 = posixMemAlign128(vocabSize * layer1Size);
 
@@ -541,7 +483,7 @@ public class Word2vec {
         syn0[i * layer1Size + j] = (((nextRandom & 0xFFFF) / (double)65536) - 0.5) / layer1Size;
       }
     }
-    createBinaryTree();
+    corpus.createBinaryTree();
   }
   
   static double[] posixMemAlign128(int size){
@@ -555,75 +497,5 @@ public class Word2vec {
   
   static long nextRandom(long nextRandom){
     return nextRandom * 25214903917L + 11;
-  }
-
-  /**
-   * Create binary Huffman tree using the word counts. 
-   * Frequent words will have short uniqe binary codes
-   */
-  void createBinaryTree() {
-    int[] point = new int[VocabWord.MAX_CODE_LENGTH];
-    char[] code = new char[VocabWord.MAX_CODE_LENGTH];
-    int[] count = new int[vocabSize * 2 + 1];
-    char[] binary = new char[vocabSize * 2 + 1];
-    int[] parentNode = new int[vocabSize * 2 + 1];
-    
-    for(int i = 0; i < vocabSize; i++)
-      count[i] = vocab[i].cn;
-    for(int i = vocabSize; i < vocabSize * 2; i++)
-      count[i] = Integer.MAX_VALUE;
-    int pos1 = vocabSize - 1;
-    int pos2 = vocabSize;
-    // Following algorithm constructs the Huffman tree by adding one node at a time
-    int min1i, min2i;
-    for(int i = 0; i < vocabSize - 1; i++) {
-      // First, find two smallest nodes 'min1, min2'
-      if (pos1 >= 0) {
-        if (count[pos1] < count[pos2]) {
-          min1i = pos1;
-          pos1--;
-        } else {
-          min1i = pos2;
-          pos2++;
-        }
-      } else {
-        min1i = pos2;
-        pos2++;
-      }
-      if (pos1 >= 0) {
-        if (count[pos1] < count[pos2]) {
-          min2i = pos1;
-          pos1--;
-        } else {
-          min2i = pos2;
-          pos2++;
-        }
-      } else {
-        min2i = pos2;
-        pos2++;
-      }
-      count[vocabSize + i] = count[min1i] + count[min2i];
-      parentNode[min1i] = vocabSize + i;
-      parentNode[min2i] = vocabSize + i;
-      binary[min2i] = 1;
-    }
-    // Now assign binary code to each vocabulary word
-    for(int j = 0; j < vocabSize; j++){
-      int k = j;
-      int i = 0;
-      while (true) {
-        code[i] = binary[k];
-        point[i] = k;
-        i++;
-        k = parentNode[k];
-        if(k == vocabSize * 2 - 2) break;
-      }
-      vocab[j].codelen = i;
-      vocab[j].point[0] = vocabSize - 2;
-      for(k = 0; k < i; k++) {
-        vocab[j].code[i - k - 1] = code[k];
-        vocab[j].point[i - k] = point[k] - vocabSize;
-      }
-    }
   }
 }

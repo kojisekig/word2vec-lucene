@@ -18,14 +18,19 @@
 package com.rondhuit.w2v;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import com.rondhuit.w2v.Word2vec.VocabWordComparator;
 import com.rondhuit.w2v.lucene.Config;
 
 public abstract class Corpus {
 
   protected Config config;
+  protected int trainWords = 0;
   protected int vocabSize;
   protected int vocabMaxSize = 1000;
   protected VocabWord[] vocab;
@@ -37,6 +42,10 @@ public abstract class Corpus {
   }
 
   public Corpus(Corpus cloneSrc) throws IOException {
+    trainWords = cloneSrc.trainWords;
+    vocabSize = cloneSrc.vocabSize;
+    vocab = cloneSrc.vocab;
+    vocabIndexMap = cloneSrc.vocabIndexMap;
   }
 
   public boolean endOfCorpus(){
@@ -69,6 +78,10 @@ public abstract class Corpus {
     return vocabSize - 1;
   }
 
+  public int getTrainWords(){
+    return trainWords;
+  }
+
   public int getVocabSize(){
     return vocabSize;
   }
@@ -99,4 +112,121 @@ public abstract class Corpus {
    * Close the corpus and it cannot be read any more.                                                                                         
    */
   public abstract void close() throws IOException;
+
+  /**
+   * Returns position of a word in the vocabulary; if the word is not found, returns -1
+   * @param word
+   * @return
+   */
+  int searchVocab(String word){
+    Integer pos = vocabIndexMap.get(word);
+    return pos == null ? -1 : pos.intValue();
+  }
+
+  /**
+   * Sorts the vocabulary by frequency using word counts
+   */
+  void sortVocab(){
+    List<VocabWord> list = new ArrayList<VocabWord>(vocabSize);
+    for(int i = 0; i < vocabSize; i++){
+      list.add(vocab[i]);
+    }
+    Collections.sort(list, new VocabWordComparator());
+    
+    // re-build vocabIndexMap
+    vocabIndexMap.clear();
+    final int size = vocabSize;
+    trainWords = 0;
+    for(int i = 0; i < size; i++){
+      // Words occuring less than min_count times will be discarded from the vocab
+      if(list.get(i).cn < config.getMinCount()){
+        vocabSize--;
+      }
+      else{
+        // Hash will be re-computed, as after the sorting it is not actual
+        setVocabIndexMap(list.get(i), i);
+      }
+    }
+
+    vocab = new VocabWord[vocabSize];
+    for(int i = 0; i < vocabSize; i++){
+      vocab[i] = new VocabWord(list.get(i).word);
+      vocab[i].cn = list.get(i).cn;
+    }
+  }
+  
+  void setVocabIndexMap(VocabWord src, int pos){
+    vocabIndexMap.put(src.word, pos);
+    trainWords += src.cn;
+  }
+
+  /**
+   * Create binary Huffman tree using the word counts. 
+   * Frequent words will have short uniqe binary codes
+   */
+  void createBinaryTree() {
+    int[] point = new int[VocabWord.MAX_CODE_LENGTH];
+    char[] code = new char[VocabWord.MAX_CODE_LENGTH];
+    int[] count = new int[vocabSize * 2 + 1];
+    char[] binary = new char[vocabSize * 2 + 1];
+    int[] parentNode = new int[vocabSize * 2 + 1];
+    
+    for(int i = 0; i < vocabSize; i++)
+      count[i] = vocab[i].cn;
+    for(int i = vocabSize; i < vocabSize * 2; i++)
+      count[i] = Integer.MAX_VALUE;
+    int pos1 = vocabSize - 1;
+    int pos2 = vocabSize;
+    // Following algorithm constructs the Huffman tree by adding one node at a time
+    int min1i, min2i;
+    for(int i = 0; i < vocabSize - 1; i++) {
+      // First, find two smallest nodes 'min1, min2'
+      if (pos1 >= 0) {
+        if (count[pos1] < count[pos2]) {
+          min1i = pos1;
+          pos1--;
+        } else {
+          min1i = pos2;
+          pos2++;
+        }
+      } else {
+        min1i = pos2;
+        pos2++;
+      }
+      if (pos1 >= 0) {
+        if (count[pos1] < count[pos2]) {
+          min2i = pos1;
+          pos1--;
+        } else {
+          min2i = pos2;
+          pos2++;
+        }
+      } else {
+        min2i = pos2;
+        pos2++;
+      }
+      count[vocabSize + i] = count[min1i] + count[min2i];
+      parentNode[min1i] = vocabSize + i;
+      parentNode[min2i] = vocabSize + i;
+      binary[min2i] = 1;
+    }
+    // Now assign binary code to each vocabulary word
+    for(int j = 0; j < vocabSize; j++){
+      int k = j;
+      int i = 0;
+      while (true) {
+        code[i] = binary[k];
+        point[i] = k;
+        i++;
+        k = parentNode[k];
+        if(k == vocabSize * 2 - 2) break;
+      }
+      vocab[j].codelen = i;
+      vocab[j].point[0] = vocabSize - 2;
+      for(k = 0; k < i; k++) {
+        vocab[j].code[i - k - 1] = code[k];
+        vocab[j].point[i - k] = point[k] - vocabSize;
+      }
+    }
+  }
 }
