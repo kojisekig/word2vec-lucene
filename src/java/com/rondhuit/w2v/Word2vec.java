@@ -130,7 +130,7 @@ public class Word2vec {
           }
           if (sentence_length == 0) {
             while(true){
-              word = readWordIndex();
+              word = corpus.readWordIndex();
               if(word == -2) break;                // EOF
               if(word == -1) continue;
               word_count++;
@@ -288,11 +288,6 @@ public class Word2vec {
         vec.threadCount--;
         vec.notify();
       }
-    }
-
-    public int readWordIndex() throws IOException {
-      String word = corpus.nextWord();
-      return word == null ? -2 : corpus.searchVocab(word);
     }
   }
   

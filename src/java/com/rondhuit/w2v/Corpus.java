@@ -101,6 +101,11 @@ public abstract class Corpus {
     eoc = false;
   }
 
+  public int readWordIndex() throws IOException {
+    String word = nextWord();
+    return word == null ? -2 : searchVocab(word);
+  }
+
   /**
    * Read the next word from the corpus
    * @return next word that is read from the corpus. null will be returned
