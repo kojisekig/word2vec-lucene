@@ -29,7 +29,7 @@ public abstract class Config {
 
   protected String outputFile;
   protected int iter = DEF_ITER, window = DEF_WINDOW, minCount = DEF_MIN_COUNT, negative = DEF_NEGATIVE,
-      layer1Size = DEF_LAYER1_SIZE, classes, numThreads = DEF_NUM_THREADS;
+      layer1Size = DEF_LAYER1_SIZE, numThreads = DEF_NUM_THREADS;
   protected boolean hs, cbow;
   protected float sample = DEF_SAMPLE, alpha = 0.025f;
 
@@ -85,15 +85,6 @@ public abstract class Config {
   
   public int getLayer1Size(){
     return layer1Size;
-  }
-  
-  public Config setClasses(int classes){
-    this.classes = classes;
-    return this;
-  }
-  
-  public int getClasses(){
-    return classes;
   }
   
   public Config setNumThreads(int numThreads){

@@ -332,74 +332,15 @@ public class Word2vec {
       w = new OutputStreamWriter(os, ENCODING);
       pw = new PrintWriter(w);
       
-      if(config.getClasses() == 0){
-        // Save the word vectors
-        logger.info("now saving the word vectors to the file {}", config.getOutputFile());
-        pw.printf("%d %d\n", vocabSize, layer1Size);
-        for(int i = 0; i < vocabSize; i++){
-          pw.print(vocab[i].word);
-          for(int j = 0; j < layer1Size; j++){
-            pw.printf(" %f", syn0[i * layer1Size + j]);
-          }
-          pw.println();
+      // Save the word vectors
+      logger.info("now saving the word vectors to the file {}", config.getOutputFile());
+      pw.printf("%d %d\n", vocabSize, layer1Size);
+      for(int i = 0; i < vocabSize; i++){
+        pw.print(vocab[i].word);
+        for(int j = 0; j < layer1Size; j++){
+          pw.printf(" %f", syn0[i * layer1Size + j]);
         }
-      }
-      else{
-        // Run K-means on the word vectors
-        logger.info("now computing K-means clustering (K={})", config.getClasses());
-        final int MAX_ITER = 10;
-        final int clcn = config.getClasses();
-        final int[] centcn = new int[clcn];
-        final int[] cl = new int[vocabSize];
-        final int centSize = clcn * layer1Size;
-        final double[] cent = new double[centSize];
-        
-        for(int i = 0; i < vocabSize; i++)
-          cl[i] = i % clcn;
-        
-        for(int it = 0; it < MAX_ITER; it++) {
-          for(int j = 0; j < centSize; j++)
-            cent[j] = 0;
-          for(int j = 0; j < clcn; j++)
-            centcn[j] = 1;
-          for(int k = 0; k < vocabSize; k++){
-            for(int l = 0; l < layer1Size; l++){
-              cent[layer1Size * cl[k] + l] += syn0[k * layer1Size + l];
-            }
-            centcn[cl[k]]++;
-          }
-          for(int j = 0; j < clcn; j++){
-            double closev = 0;
-            for(int k = 0; k < layer1Size; k++){
-              cent[layer1Size * j + k] /= centcn[j];
-              closev += cent[layer1Size * j + k] * cent[layer1Size * j + k];
-            }
-            closev = Math.sqrt(closev);
-            for(int k = 0; k < layer1Size; k++){
-              cent[layer1Size * j + k] /= closev;
-            }
-          }
-          for(int k = 0; k < vocabSize; k++){
-            double closev = -10;
-            int closeid = 0;
-            for(int l = 0; l < clcn; l++) {
-              double x = 0;
-              for(int j = 0; j < layer1Size; j++){
-                x += cent[layer1Size * l + j] * syn0[k * layer1Size + j];
-              }
-              if (x > closev) {
-                closev = x;
-                closeid = l;
-              }
-            }
-            cl[k] = closeid;
-          }
-        }
-        // Save the K-means classes
-        logger.info("now saving the result of K-means clustering to the file {}", config.getOutputFile());
-        for(int i = 0; i < vocabSize; i++){
-          pw.printf("%s %d\n", vocab[i].word, cl[i]);
-        }
+        pw.println();
       }
     }
     finally{

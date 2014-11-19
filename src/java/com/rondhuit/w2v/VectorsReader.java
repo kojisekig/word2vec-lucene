@@ -39,7 +39,7 @@ public final class VectorsReader {
     this.file = file;
   }
   
-  protected void readVectorFile() throws IOException {
+  public void readVectorFile() throws IOException {
     System.err.printf("reading %s file. please wait...\n", file);
     
     InputStream is = null;

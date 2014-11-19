@@ -17,3 +17,4 @@
 solrhome/*/conf/_rest_managed.json
 solrhome/*/data
 /work
+/word-clusters.txt

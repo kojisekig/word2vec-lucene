@@ -42,7 +42,6 @@ public abstract class AbstractCreateVectors {
     paramDesc("-iter <int>",      "Run more training iterations (default 5)");
     paramDesc("-min-count <int>", "This will discard words that appear less than <int> times; default is 5");
     paramDesc("-alpha <float>",   "Set the starting learning rate; default is 0.025 for skip-gram and 0.05 for CBOW");
-    paramDesc("-classes <int>",   "Output word classes rather than word vectors; default number of classes is 0 (vectors are written)");
     paramDesc("-cbow",  "Use the continuous bag of words model; default is skip-gram model");
     
     localUsage();
@@ -79,6 +78,5 @@ public abstract class AbstractCreateVectors {
     if((i = argPos("-threads", args)) >= 0) config.setNumThreads(Integer.parseInt(args[i + 1]));
     if((i = argPos("-iter", args)) >= 0) config.setIter(Integer.parseInt(args[i + 1]));
     if((i = argPos("-min-count", args)) >= 0) config.setMinCount(Integer.parseInt(args[i + 1]));
-    if((i = argPos("-classes", args)) >= 0) config.setClasses(Integer.parseInt(args[i + 1]));
   }
 }
