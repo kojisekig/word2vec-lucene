@@ -276,6 +276,7 @@ public class Word2vec {
             continue;
           }
         }
+        corpus.shutdown();
       }
       catch(IOException e){
         throw new RuntimeException(e);

@@ -96,7 +96,7 @@ public abstract class Corpus {
   /**                                                                                                                                         
    *                                                                                   
    */
-  public void rewind(int numThreads, int id){
+  public void rewind(int numThreads, int id) throws IOException {
     eoc = false;
   }
 
@@ -126,7 +126,13 @@ public abstract class Corpus {
   /**                                                                                                                                         
    * Close the corpus and it cannot be read any more.                                                                                         
    */
-  public abstract void close() throws IOException;
+  public void close() throws IOException{
+    // do nothing in default
+  }
+  
+  public void shutdown() throws IOException {
+    // do nothing in default
+  }
 
   /**
    * Returns position of a word in the vocabulary; if the word is not found, returns -1

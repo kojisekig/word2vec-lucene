@@ -109,7 +109,7 @@ public class LuceneIndexCorpus extends Corpus {
   int valPos = 0;
 
   @Override
-  public void rewind(int numThreads, int id) {
+  public void rewind(int numThreads, int id) throws IOException {
     super.rewind(numThreads, id);
     tdPos = topDocs.totalHits / numThreads * id;
   }
