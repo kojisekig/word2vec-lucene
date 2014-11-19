@@ -17,6 +17,7 @@
 -->
 <schema name="example" version="1.5">
   <field name="body" type="text_general" indexed="true" stored="true" multiValued="true"/>
+  <dynamicField name="ignored_*" type="ignored" multiValued="true"/>
   <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100">
     <analyzer type="index">
       <tokenizer class="solr.StandardTokenizerFactory"/>
@@ -27,4 +28,5 @@
       <filter class="solr.LowerCaseFilterFactory"/>
     </analyzer>
   </fieldType>
+  <fieldtype name="ignored" stored="false" indexed="false" multiValued="true" class="solr.StrField" />
 </schema>

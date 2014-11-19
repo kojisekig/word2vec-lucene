@@ -18,6 +18,9 @@
 <config>
 
   <luceneMatchVersion>4.10.2</luceneMatchVersion>
+
+  <lib dir="${solr.dir}/contrib/extraction/lib" regex=".*\.jar" />
+  <lib dir="${solr.dir}/dist/" regex="solr-cell-\d.*\.jar" />
   <dataDir>${solr.data.dir:}</dataDir>
   <directoryFactory name="DirectoryFactory" 
                     class="${solr.directoryFactory:solr.NRTCachingDirectoryFactory}">
@@ -100,8 +103,7 @@
       <str name="lowernames">true</str>
       <str name="uprefix">ignored_</str>
       <str name="captureAttr">true</str>
-      <str name="fmap.a">links</str>
-      <str name="fmap.div">ignored_</str>
+      <str name="fmap.content">body</str>
     </lst>
   </requestHandler>
 

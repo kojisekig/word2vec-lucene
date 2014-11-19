@@ -41,6 +41,11 @@ Once you got Lucene index, you can now create vectors.txt file.
 
     $ ./demo-word2vec.sh collection1
 
+## for people who has PDF file
+If you have Lucene in Action book PDF file, post the file to Solr.
+
+    $ ./solrcell.sh LuceneInAction.pdf
+
 ## for people who prefer Japanese text
 ### prepare livedoor news corpus
 Download livedoor news corpus from RONDHUIT site and unzip it in an appropriate directory.
