@@ -19,9 +19,9 @@ package com.rondhuit.w2v.demo;
 
 import java.io.IOException;
 
-import com.rondhuit.w2v.AbstractVectorsReader;
+import com.rondhuit.w2v.AbstractClosestVectors;
 
-public class Distance extends AbstractVectorsReader {
+public class Distance extends AbstractClosestVectors {
   
   public Distance(String file) {
     super(file);
@@ -39,6 +39,9 @@ public class Distance extends AbstractVectorsReader {
   }
   
   protected Result getTargetVector(){
+    final int words = vectorsReader.getNumWords();
+    final int size = vectorsReader.getSize();
+    
     String[] input = null;
     while((input = nextWords(1, "Enter a word")) != null) {
       // linear search the input word in vocabulary
@@ -46,12 +49,12 @@ public class Distance extends AbstractVectorsReader {
       int bi = -1;
       double len = 0;
       for(int i = 0; i < words; i++){
-        if(input[0].equals(vocab[i])){
+        if(input[0].equals(vectorsReader.getWord(i))){
           bi = i;
           System.out.printf("\nWord: %s  Position in vocabulary: %d\n", input[0], bi);
           vec = new float[size];
           for(int j = 0; j < size; j++){
-            vec[j] = matrix[bi][j];
+            vec[j] = vectorsReader.getMatrixElement(bi, j);
             len += vec[j] * vec[j];
           }
         }
