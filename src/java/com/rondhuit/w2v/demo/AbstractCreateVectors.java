@@ -38,7 +38,7 @@ public abstract class AbstractCreateVectors {
                                   " will be randomly down-sampled; default is 0.001, useful range is (0, 0.00001)");
     paramDesc("-hs",              "Use Hierarchical Softmax; default is not used");
     paramDesc("-negative <int>",  "Number of negative examples; default is 5, common values are 3 - 10 (0 = not used)");
-    paramDesc("-threads <int>",   "Use <int> threads (default 12)");
+    paramDesc("-threads <int>",   "Use <int> threads (default 4)");
     paramDesc("-iter <int>",      "Run more training iterations (default 5)");
     paramDesc("-min-count <int>", "This will discard words that appear less than <int> times; default is 5");
     paramDesc("-alpha <float>",   "Set the starting learning rate; default is 0.025 for skip-gram and 0.05 for CBOW");

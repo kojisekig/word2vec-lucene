@@ -24,7 +24,7 @@ public abstract class Config {
   static final int DEF_MIN_COUNT       = 5;
   static final int DEF_NEGATIVE        = 5;
   static final int DEF_LAYER1_SIZE     = 100;
-  static final int DEF_NUM_THREADS     = 12;
+  static final int DEF_NUM_THREADS     = 4;
   static final float DEF_SAMPLE        = 0.001f;
 
   protected String outputFile;
