@@ -27,8 +27,7 @@ public class TextFileCreateVectors extends AbstractCreateVectors {
 
   @Override
   protected void localUsage(){
-    System.err.printf("\t-input <file>\n");
-    System.err.printf("\t\tUse text data from <file> to train the model\n");
+    paramDesc("-input <file>", "Use text data from <file> to train the model");
     System.err.printf("\nExamples:\n");
     System.err.printf("java %s -input data.txt -output vec.txt -size 200 -window 5 -sample 0.0001 -negative 5 -hs 0 -binary -cbow -iter 3\n\n",
         TextFileCreateVectors.class.getName());

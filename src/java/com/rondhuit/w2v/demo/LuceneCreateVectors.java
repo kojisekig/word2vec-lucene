@@ -27,12 +27,9 @@ public class LuceneCreateVectors extends AbstractCreateVectors {
 
   @Override
   protected void localUsage(){
-    System.err.printf("\t-index <dir>\n");
-    System.err.printf("\t\tSet Lucene index <dir> to train the model\n");
-    System.err.printf("\t-analyzer <Lucene Analyzer class>\n");
-    System.err.printf("\t\tSet Lucene Analyzer class name; default is org.apache.lucene.analysis.core.WhitespaceAnalyzer\n");
-    System.err.printf("\t-field <field name>\n");
-    System.err.printf("\t\tSet Lucene field name to be analyzed\n");
+    paramDesc("-index <dir>", "Set Lucene index <dir> to train the model");
+    paramDesc("-analyzer <Lucene Analyzer class>", "Set Lucene Analyzer class name; default is org.apache.lucene.analysis.core.WhitespaceAnalyzer");
+    paramDesc("-field <field name>", "Set Lucene field name to be analyzed");
     System.err.printf("\nExamples:\n");
     System.err.printf("java %s -index index -output vec.txt -size 200 -window 5 -sample 0.0001 -negative 5 -hs 0 -binary -cbow -iter 3\n\n",
         LuceneCreateVectors.class.getName());

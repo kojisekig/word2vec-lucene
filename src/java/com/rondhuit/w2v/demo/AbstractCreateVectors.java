@@ -23,35 +23,27 @@ public abstract class AbstractCreateVectors {
   
   protected abstract void localUsage();
   
+  protected void paramDesc(String param, String desc){
+    System.err.printf("\t%s\n\t\t%s\n", param, desc);
+  }
+  
   protected void usage(){
     System.err.printf("WORD VECTOR estimation toolkit v 0.1c\n\n");
     System.err.printf("Options:\n");
     System.err.printf("Parameters for training:\n");
-    System.err.printf("\t-output <file>\n");
-    System.err.printf("\t\tUse <file> to save the resulting word vectors / word clusters\n");
-    System.err.printf("\t-size <int>\n");
-    System.err.printf("\t\tSet size of word vectors; default is 100\n");
-    System.err.printf("\t-window <int>\n");
-    System.err.printf("\t\tSet max skip length between words; default is 5\n");
-    System.err.printf("\t-sample <float>\n");
-    System.err.printf("\t\tSet threshold for occurrence of words. Those that appear with higher frequency in the training data\n");
-    System.err.printf("\t\twill be randomly down-sampled; default is 0.001, useful range is (0, 0.00001)\n");
-    System.err.printf("\t-hs\n");
-    System.err.printf("\t\tUse Hierarchical Softmax; default is not used\n");
-    System.err.printf("\t-negative <int>\n");
-    System.err.printf("\t\tNumber of negative examples; default is 5, common values are 3 - 10 (0 = not used)\n");
-    System.err.printf("\t-threads <int>\n");
-    System.err.printf("\t\tUse <int> threads (default 12)\n");
-    System.err.printf("\t-iter <int>\n");
-    System.err.printf("\t\tRun more training iterations (default 5)\n");
-    System.err.printf("\t-min-count <int>\n");
-    System.err.printf("\t\tThis will discard words that appear less than <int> times; default is 5\n");
-    System.err.printf("\t-alpha <float>\n");
-    System.err.printf("\t\tSet the starting learning rate; default is 0.025 for skip-gram and 0.05 for CBOW\n");
-    System.err.printf("\t-classes <int>\n");
-    System.err.printf("\t\tOutput word classes rather than word vectors; default number of classes is 0 (vectors are written)\n");
-    System.err.printf("\t-cbow\n");
-    System.err.printf("\t\tUse the continuous bag of words model; default is skip-gram model\n");
+    paramDesc("-output <file>",   "Use <file> to save the resulting word vectors / word clusters");
+    paramDesc("-size <int>",      "Set size of word vectors; default is 100");
+    paramDesc("-window <int>",    "Set max skip length between words; default is 5");
+    paramDesc("-sample <float>",  "Set threshold for occurrence of words. Those that appear with higher frequency in the training data" +
+                                  " will be randomly down-sampled; default is 0.001, useful range is (0, 0.00001)");
+    paramDesc("-hs",              "Use Hierarchical Softmax; default is not used");
+    paramDesc("-negative <int>",  "Number of negative examples; default is 5, common values are 3 - 10 (0 = not used)");
+    paramDesc("-threads <int>",   "Use <int> threads (default 12)");
+    paramDesc("-iter <int>",      "Run more training iterations (default 5)");
+    paramDesc("-min-count <int>", "This will discard words that appear less than <int> times; default is 5");
+    paramDesc("-alpha <float>",   "Set the starting learning rate; default is 0.025 for skip-gram and 0.05 for CBOW");
+    paramDesc("-classes <int>",   "Output word classes rather than word vectors; default number of classes is 0 (vectors are written)");
+    paramDesc("-cbow",  "Use the continuous bag of words model; default is skip-gram model");
     
     localUsage();
     
