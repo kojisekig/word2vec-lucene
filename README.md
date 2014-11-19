@@ -23,7 +23,7 @@ In this section, you'll know how to use demo environment provided in this projec
 Download Apache Solr 4.10.2 (recommended) and unzip the downloaded file in an appropriate directory. Go to example directory and launch Solr with solr.solr.home property.
 
     $ cd solr-4.10.2/example
-    $ java -Dsolr.solr.home=${word2vec-lucene}/solrhome -jar start.jar
+    $ java -Dsolr.solr.home=${word2vec-lucene}/solrhome -Dsolr.dir=${solr-inst-dir} -jar start.jar
 
 ## for people who like text8
 ### prepare text8.xml file

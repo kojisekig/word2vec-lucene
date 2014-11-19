@@ -16,7 +16,7 @@
 #
 
 if [ -z $1 ]; then
-  echo "Usage: ./demo-word2vec.sh <solrcore> <analyzer (default is org.apache.lucene.analysis.core.WhitespaceAnalyzer)>"
+  echo "Usage: ./demo-word2vec.sh <solrcore> <analyzer (default is org.apache.lucene.analysis.standard.StandardAnalyzer)>"
   echo "  ex) ./demo-word2vec.sh ldcc org.apache.lucene.analysis.ja.JapaneseAnalyzer"
   exit 1
 else

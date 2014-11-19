@@ -21,7 +21,7 @@ import com.rondhuit.w2v.Config;
 
 public class LuceneIndexConfig extends Config {
 
-  static final String DEF_ANALYZER     = "org.apache.lucene.analysis.core.WhitespaceAnalyzer";
+  static final String DEF_ANALYZER     = "org.apache.lucene.analysis.standard.StandardAnalyzer";
   
   private String indexDir, field, analyzer = DEF_ANALYZER;
 
