@@ -155,7 +155,7 @@
 
     <target name="t8-splitter" unless="t8txt.exists" depends="t8txt-check, w2vl-compile"
         description="split text8 into multi-lines file so that Word2vec can process the file correctly">
-        <java classname="com.rondhuit.w2v.lucene.Text8Splitter" fork="true">
+        <java classname="com.rondhuit.w2v.Text8Splitter" fork="true">
             <jvmarg line="-Dfile.encoding=UTF-8"/>
             <arg line="text8 text8.txt"/>
             <classpath refid="common.path.lib"/>

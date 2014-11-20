@@ -21,7 +21,7 @@ In this section, you'll know how to use demo environment provided in this projec
 
 ## prepare Apache Solr
 
-Download Apache Solr 4.10.2 (recommended) and unzip the downloaded file in an appropriate directory. Go to example directory and launch Solr with solr.solr.home property.
+Download Apache Solr 4.10.2 (recommended) and unzip the downloaded file in an appropriate directory. Go to example directory and launch Solr with solr.solr.home and solr.dir properties.
 
     $ cd solr-4.10.2/example
     $ java -Dsolr.solr.home=${word2vec-lucene}/solrhome -Dsolr.dir=${solr-inst-dir} -jar start.jar
@@ -31,6 +31,8 @@ Download Apache Solr 4.10.2 (recommended) and unzip the downloaded file in an ap
 Execute ant to prepare sample input text8.xml file.
 
     $ ant t8-solr
+    
+This takes several minutes.
 
 ### index text8.xml into Solr
 Index text8.xml file to Solr.
@@ -69,11 +71,12 @@ Once you got Lucene index, you can now create vectors.txt file.
     $ ./demo-word2vec.sh ldcc org.apache.lucene.analysis.ja.JapaneseAnalyzer
 
 ## compute distance among word vectors
-Once you got word vectors file vectors.txt, you can find most similar 40 words to the word you specified.
+Once you got word vectors file vectors.txt, you can find top 40 words that are closest words to the word you specified.
 
     $ ./demo-distance.sh
     cat
-    Word: cat  Position in vocabulary: 2601
+    Word: cat
+    Position in vocabulary: 2601
 
                                                   Word      Cosine distance
     ------------------------------------------------------------------------
