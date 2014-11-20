@@ -1,7 +1,7 @@
-word2vec-lucene
+word2vec for Lucene
 ===============
 
-This tool extracts word vectors from Lucene index.
+"word2vec for Lucene" extracts word vectors from Lucene index.
 
 # strength and weakness
 ## strength
@@ -90,3 +90,6 @@ Or, you can compute vector operations e.g. vector('paris') - vector('france') + 
     $ ./demo-analogy.sh
     france paris italy
     man king woman
+
+# Using text files rather than Lucene index
+This tool supports not only Lucene index but also text files. See TextFileCreateVectors.java for details. The words in the text file must be separated by white space. This is normal for English and you need nothing for pretreatment. But for some languages e.g. Japanese, you need to "tokenize" the Japanese sentences into space-separated words before executing TextFileCreateVectors.java.
