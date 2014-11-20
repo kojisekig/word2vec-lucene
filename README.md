@@ -12,6 +12,7 @@ This tool extracts word vectors from Lucene index.
 ## weakness (known limitations)
 * You need to provide a Lucene index as a text corpus.
 * You need to set field to be processed. The field must be indexed and stored.
+* The optimized index is preferable than unoptimiaed one because we use [totalTermFreq](http://lucene.apache.org/core/4_10_2/core/org/apache/lucene/index/TermsEnum.html#totalTermFreq\(\) "totalTermFreq")() to get term count for each word.
 
 
 # HOW TO USE
@@ -34,7 +35,7 @@ Execute ant to prepare sample input text8.xml file.
 ### index text8.xml into Solr
 Index text8.xml file to Solr.
 
-    $ ./optimize.sh collection1 text8.xml
+    $ ./post.sh collection1 text8.xml
 
 ### create vectors.txt file
 Once you got Lucene index, you can now create vectors.txt file.
@@ -60,7 +61,7 @@ Download livedoor news corpus from RONDHUIT site and unzip it in an appropriate 
 ### index livedoor news corpus into Solr
 Index livedoor news corpus xml files to Solr.
 
-    $ ./optimize.sh ldcc work/*.xml
+    $ ./post.sh ldcc work/*.xml
 
 ### create vectors.txt file
 Once you got Lucene index, you can now create vectors.txt file.

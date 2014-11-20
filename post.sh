@@ -25,8 +25,6 @@ for f in $FILES; do
   echo
 done
 
-#send the commit command to make sure all the changes are flushed and visible
-#curl $URL --data-binary '<commit softCommit=true/>' -H 'Content-type:application/xml'
-
+# optimize=true is preferable than commit=true, because we use totalTermFreq() to get term frequency
 curl "$URL?optimize=true"
 echo
