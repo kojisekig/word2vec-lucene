@@ -44,6 +44,10 @@ Once you got Lucene index, you can now create vectors.txt file.
 
     $ ./demo-word2vec.sh collection1
 
+With -f option, you can specify arbitrary output vectors file.
+
+    $ ./demo-word2vec.sh collection1 -f vectors_my.txt
+
 ## for people who has PDF file
 If you have Lucene in Action book PDF file, post the file to Solr.
 
@@ -68,12 +72,18 @@ Index livedoor news corpus xml files to Solr.
 ### create vectors.txt file
 Once you got Lucene index, you can now create vectors.txt file.
 
-    $ ./demo-word2vec.sh ldcc org.apache.lucene.analysis.ja.JapaneseAnalyzer
+    $ ./demo-word2vec.sh ldcc -a org.apache.lucene.analysis.ja.JapaneseAnalyzer
+
+With -f option, you can specify arbitrary output vectors file.
+
+    $ ./demo-word2vec.sh ldcc -a org.apache.lucene.analysis.ja.JapaneseAnalyzer -f vectors_my.txt
 
 ## compute distance among word vectors
 Once you got word vectors file vectors.txt, you can find top 40 words that are closest words to the word you specified.
 
-    $ ./demo-distance.sh
+With -f option, you can specify arbitrary input vectors file.
+
+    $ ./demo-distance.sh [-f <vectors_file>]
     cat
     Word: cat
     Position in vocabulary: 2601
@@ -90,7 +100,9 @@ Once you got word vectors file vectors.txt, you can find top 40 words that are c
 
 Or, you can compute vector operations e.g. vector('paris') - vector('france') + vector('italy') or vector('king') - vector('man') + vector('woman')
 
-    $ ./demo-analogy.sh
+With -f option, you can specify arbitrary input vectors file.
+
+    $ ./demo-analogy.sh [-f <vectors_file>]
     france paris italy
     man king woman
 

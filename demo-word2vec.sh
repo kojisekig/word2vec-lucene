@@ -21,13 +21,18 @@ if [ -z $1 ]; then
   exit 1
 else
   SOLRCORE=$1
+  shift
 fi
 
-if [ -z $2 ]; then
-  ANALYZER=org.apache.lucene.analysis.core.WhitespaceAnalyzer
-else
-  ANALYZER=$2
-fi
+ANALYZER=org.apache.lucene.analysis.core.WhitespaceAnalyzer
+VECTOR_FILE=vectors.txt
+while getopts a:f: OPT
+do
+  case $OPT in
+    "a" ) ANALYZER="$OPTARG" ;;
+    "f" ) VECTOR_FILE="$OPTARG" ;;
+  esac
+done
 
 LUCENE_JAR=$(ls lib/lucene-core-*.jar)
 LUCENE_JAR=${LUCENE_JAR}:$(ls lib/lucene-analyzers-common-*.jar)
@@ -36,4 +41,4 @@ RHCOM_JAR=$(ls lib/RONDHUIT-COMMONS-*.jar)
 SLF4J_JAR=$(ls lib/slf4j-api-*.jar)
 SLF4J_JAR=${SLF4J_JAR}:$(ls lib/slf4j-jdk14-*.jar)
 
-java -cp ${LUCENE_JAR}:${RHCOM_JAR}:${SLF4J_JAR}:classes com.rondhuit.w2v.demo.LuceneCreateVectors -index solrhome/${SOLRCORE}/data/index -output vectors.txt -field body -analyzer ${ANALYZER} -cbow 1 -size 200 -window 8 -negative 25 -sample 0.0001 -iter 15 -min-count 5
+java -cp ${LUCENE_JAR}:${RHCOM_JAR}:${SLF4J_JAR}:classes com.rondhuit.w2v.demo.LuceneCreateVectors -index solrhome/${SOLRCORE}/data/index -output ${VECTOR_FILE} -field body -analyzer ${ANALYZER} -cbow 1 -size 200 -window 8 -negative 25 -sample 0.0001 -iter 15 -min-count 5

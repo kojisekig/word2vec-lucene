@@ -19,4 +19,12 @@ RHCOM_JAR=$(ls lib/RONDHUIT-COMMONS-*.jar)
 SLF4J_JAR=$(ls lib/slf4j-api-*.jar)
 SLF4J_JAR=${SLF4J_JAR}:$(ls lib/slf4j-jdk14-*.jar)
 
-java -cp ${RHCOM_JAR}:${SLF4J_JAR}:classes com.rondhuit.w2v.demo.WordAnalogy vectors.txt
+VECTOR_FILE=vectors.txt
+while getopts f: OPT
+do
+  case $OPT in
+    "f" ) VECTOR_FILE="$OPTARG" ;;
+  esac
+done
+
+java -cp ${RHCOM_JAR}:${SLF4J_JAR}:classes com.rondhuit.w2v.demo.WordAnalogy ${VECTOR_FILE}

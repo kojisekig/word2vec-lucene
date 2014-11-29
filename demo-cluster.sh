@@ -21,8 +21,17 @@ if [ -z $1 ]; then
   exit 1
 else
   K=$1
+  shift
 fi
+
+VECTOR_FILE=vectors.txt
+while getopts f: OPT
+do
+  case $OPT in
+    "f" ) VECTOR_FILE="$OPTARG" ;;
+  esac
+done
 
 RHCOM_JAR=$(ls lib/RONDHUIT-COMMONS-*.jar)
 
-java -cp ${RHCOM_JAR}:classes com.rondhuit.w2v.demo.WordCluster vectors.txt ${K} word-clusters.txt
+java -cp ${RHCOM_JAR}:classes com.rondhuit.w2v.demo.WordCluster ${VECTOR_FILE} ${K} word-clusters.txt
