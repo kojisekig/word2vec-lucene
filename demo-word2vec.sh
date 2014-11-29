@@ -16,8 +16,8 @@
 #
 
 if [ -z $1 ]; then
-  echo "Usage: ./demo-word2vec.sh <solrcore> <analyzer (default is org.apache.lucene.analysis.standard.StandardAnalyzer)>"
-  echo "  ex) ./demo-word2vec.sh ldcc org.apache.lucene.analysis.ja.JapaneseAnalyzer"
+  echo "Usage: ./demo-word2vec.sh <solrcore> -a <analyzer (default is org.apache.lucene.analysis.standard.StandardAnalyzer)> -f <vectors file (default is vectors.txt)>"
+  echo "  ex) ./demo-word2vec.sh ldcc -a org.apache.lucene.analysis.ja.JapaneseAnalyzer -f vectors_ld.txt"
   exit 1
 else
   SOLRCORE=$1
