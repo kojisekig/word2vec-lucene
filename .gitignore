@@ -13,7 +13,7 @@
 /javadoc-release
 /*.temp
 /text8*
-/vectors.txt
+/vectors*.txt
 solrhome/*/conf/_rest_managed.json
 solrhome/*/data
 /work

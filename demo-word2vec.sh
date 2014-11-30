@@ -24,7 +24,7 @@ else
   shift
 fi
 
-ANALYZER=org.apache.lucene.analysis.core.WhitespaceAnalyzer
+ANALYZER=org.apache.lucene.analysis.standard.StandardAnalyzer
 VECTOR_FILE=vectors.txt
 while getopts a:f: OPT
 do
