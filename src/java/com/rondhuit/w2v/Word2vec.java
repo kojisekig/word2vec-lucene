@@ -70,7 +70,8 @@ public class Word2vec {
     final Config config;
     float alpha;
     final float startingAlpha;
-    final int id, trainWords, vocabSize;
+    final float trainWords;    // #19
+    final int id, vocabSize;
     final long timeStart;
     final int[] table;
     final VocabWord[] vocab;
@@ -91,7 +92,7 @@ public class Word2vec {
     }
     
     public void run(){
-      final int iter = config.getIter();
+      final float iter = config.getIter();     // #19
       final int layer1Size = config.getLayer1Size();
       final int numThreads = config.getNumThreads();
       final int window = config.getWindow();
@@ -105,7 +106,7 @@ public class Word2vec {
         int[] sen = new int[MAX_SENTENCE_LENGTH + 1];
         long cw;
         long word_count = 0, last_word_count = 0;
-        long label, local_iter = iter;
+        long label, local_iter = (int)iter;
         long next_random = id;
         double f, g;
         long timeNow;
@@ -118,7 +119,7 @@ public class Word2vec {
             wordCountActual += word_count - last_word_count;
             last_word_count = word_count;
             timeNow = System.currentTimeMillis();
-            System.err.printf("%cAlpha: %f  Progress: %.2f%%  Words/thread/sec: %.2fk  ", 13, alpha,
+            System.err.printf("%cAlpha: %f  iter: %d  Progress: %.2f%%  Words/thread/sec: %.2fk  ", 13, alpha, local_iter,
                 wordCountActual / (float)(iter * trainWords + 1) * 100,
                 wordCountActual / (float)(timeNow - timeStart + 1));
             System.err.flush();
